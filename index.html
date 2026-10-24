@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<!-- X1 Energy: static demo snapshot (reference architecture / concept, not a deployed installation). Canonical version: https://x1-energy-system-operacyjny-lto-lfp.netlify.app/ -->
+
+<html lang="pl" class="dark">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>X1 ENERGY: System Operacyjny LTO/LFP</title>
+    <meta name="description" content="X1 ENERGY: system operacyjny LTO×LFP. Koncepcja i architektura referencyjna rozproszonego, hybrydowego systemu magazynowania energii (Polska Synergia Sp. z o.o.). Model obliczeniowy, nie instalacja wdrożona.">
+    <link rel="canonical" href="https://x1-energy-system-operacyjny-lto-lfp.netlify.app/">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "X1 ENERGY: System Operacyjny LTO×LFP",
+      "applicationCategory": "EnergyManagementSystem",
+      "operatingSystem": "Any (web browser)",
+      "inLanguage": "pl",
+      "description": "Interactive technical model and reference architecture of a hybrid LTO×LFP distributed energy storage system with a Smol Power Iron LTO UPS buffer layer. Concept, not a deployed installation.",
+      "url": "https://x1-energy-system-operacyjny-lto-lfp.netlify.app/",
+      "sameAs": [
+        "https://x1-energy-system-operacyjny-lto-lfp.netlify.app/",
+        "https://x1-energy-system-architecture.netlify.app/",
+        "https://github.com/polska-synergia/X1-Energy-Application"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Polska Synergia Sp. z o.o.",
+        "url": "https://polska-synergia.pl"
+      }
+    }
+    </script>
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=block">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+
+        body { font-family: 'Inter', "Segoe UI", Arial, sans-serif; background-color: #f8fafc; color: #0f172a; }
+
+        .chart-container { position: relative; width: 100%; max-width: 800px; margin-left: auto; margin-right: auto; min-height: 300px; height: 400px; }
+
+        @media (max-width: 640px) {
+
+            .chart-container { height: 320px; min-height: 280px; }
+
+        }
+
+        .tech-gradient { background: linear-gradient(145deg, #1e3a8a 0%, #1e40af 100%); }
+
+        .logic-card { background: white; border: 1px solid #e2e8f0; border-left: 5px solid #2563eb; }
+
+        .saving-tag { padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 10px; font-weight: bold; text-transform: uppercase; }
+
+        .ems-deep-dive { padding: 1.5rem; border-radius: 1rem; border: 1px solid #e2e8f0; background-color: white; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: box-shadow 0.2s; display: flex; flex-direction: column; }
+
+        .ems-deep-dive:hover { box-shadow: 0 4px 6px rgba(0,0,0,0.07); }
+
+        h1 {
+
+            font-size: 1.5rem; /* text-2xl */
+
+            font-weight: 800; /* font-extrabold */
+
+            line-height: 1.25; /* leading-tight */
+
+        }
+
+        @media (min-width: 640px) {
+
+            h1 { font-size: 1.875rem; } /* text-3xl */
+
+        }
+
+        @media (min-width: 768px) {
+
+            h1 { font-size: 2.25rem; } /* text-4xl */
+
+        }
+
+        @media (min-width: 1024px) {
+
+            h1 { font-size: 3rem; } /* text-5xl */
+
+        }
+
+    </style>
+
+</head>
+
+<body class="antialiased">
+
+<div class="max-w-7xl mx-auto px-4 py-12">
+
+    <!-- ==================== HEADER ==================== -->
+
+    <header class="tech-gradient text-white p-5 sm:p-8 lg:p-12 rounded-3xl shadow-2xl mb-12 relative overflow-hidden">
+
+        <div class="relative z-10">
+
+            <div class="flex flex-wrap gap-2 items-center mb-4 sm:mb-6">
+
+                <span class="px-2.5 py-1 bg-teal-900/300 rounded-xl sm:rounded-full text-[10px] sm:text-xs font-bold tracking-normal sm:tracking-widest uppercase text-center max-w-full leading-normal">Specyfikacja Techniczna: na Podstawie Fizycznego Zużycia</span>
+
+                <span class="px-2.5 py-1 bg-emerald-900/200 rounded-xl sm:rounded-full text-[10px] sm:text-xs font-bold tracking-normal sm:tracking-widest uppercase text-center max-w-full leading-normal">Zgodność URE: wymagane 70% Autokonsumpcji</span>
+
+            </div>
+
+            <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold mb-4 sm:mb-6 leading-tight text-white">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANIAAADSCAYAAAA/mZ5CAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAANvaVRYdFhNTDpjb20uYWRvYmUueG1wAAAAAAA8P3hwYWNrZXQgYmVnaW49J++7vycgaWQ9J1c1TTBNcENlaGlIenJlU3pOVGN6a2M5ZCc/Pg0KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyI+PHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj48cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0idXVpZDpmYWY1YmRkNS1iYTNkLTExZGEtYWQzMS1kMzNkNzUxODJmMWIiIHhtbG5zOmV4aWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20vZXhpZi8xLjAvIj48ZXhpZjpEYXRlVGltZU9yaWdpbmFsPjIwMjUtMDEtMTNUMjI6NDk6NTE8L2V4aWY6RGF0ZVRpbWVPcmlnaW5hbD48L3JkZjpEZXNjcmlwdGlvbj48cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0idXVpZDpmYWY1YmRkNS1iYTNkLTExZGEtYWQzMS1kMzNkNzUxODJmMWIiIHhtbG5zOnhtcD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLyI+PHhtcDpDcmVhdGVEYXRlPjIwMjUtMDEtMTNUMjI6NDk6NTE8L3htcDpDcmVhdGVEYXRlPjx4bXA6Q3JlYXRvclRvb2w+TWljcm9zb2Z0IFdpbmRvd3MgUGhvdG8gVmlld2VyIDEwLjAuMjYxMDAuMTg4MjwveG1wOkNyZWF0b3JUb29sPjx4bXA6Y3JlYXRvcnRvb2w+TWljcm9zb2Z0IFdpbmRvd3MgUGhvdG8gVmlld2VyIDEwLjAuMjYxMDAuMTg4MjwveG1wOmNyZWF0b3J0b29sPjwvcmRmOkRlc2NyaXB0aW9uPjxyZGY6RGVzY3JpcHRpb24geG1sbnM6dGlmZj0iaHR0cDovL25zLmFkb2JlLmNvbS90aWZmLzEuMC8iPjx0aWZmOk9yaWVudGF0aW9uPjE8L3RpZmY6T3Jp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" alt="Logo Polska Synergia" class="inline-block h-[0.88em] w-auto align-baseline mb-[-0.08em] mr-3 max-w-full rounded-md shadow-md shadow-black/40 pointer-events-none select-none" />
+                <span>X1 ENERGY › System Operacyjny LTO/LFP</span>
+            </h1>
+
+            <p class="text-base sm:text-lg lg:text-xl opacity-90 font-light leading-relaxed">
+
+                Zaawansowany technologicznie system magazynowania energii w architekturze rozproszonej zaprojektowany do eliminacji przeciążeń sieciowych i maksymalizacji autokonsumpcji fizycznej dla 3 216 lokali mieszkalnych w 18 wieżowcach
+
+            </p>
+
+        </div>
+
+        <div class="relative z-10 mt-6 sm:mt-8">
+
+        </div>
+
+    </header>
+
+    <!-- ==================== KPI CARDS ==================== -->
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-16 text-center">
+
+        <div class="logic-card p-6 rounded-xl shadow-md shadow-black/40">
+
+            <h3 class="text-xs font-bold text-slate-500 uppercase mb-2">Moc Przyłączeniowa PV</h3>
+
+            <p class="text-3xl font-black text-teal-400">1,37 MWp</p>
+
+        </div>
+
+        <div class="logic-card p-6 rounded-xl shadow-md shadow-black/40">
+
+            <h3 class="text-xs font-bold text-slate-500 uppercase mb-2">Pojemność Nominalna Magazynu</h3>
+
+            <p class="text-3xl font-black text-teal-400">5,34 MWh</p>
+
+        </div>
+
+        <div class="logic-card p-6 rounded-xl shadow-md shadow-black/40">
+
+            <h3 class="text-xs font-bold text-slate-500 uppercase mb-2">Czas Reakcji Smol Power LTO</h3>
+
+            <p class="text-3xl font-black text-teal-400">0 ms</p>
+
+        </div>
+
+        <div class="logic-card p-6 rounded-xl shadow-md shadow-black/40">
+
+            <h3 class="text-xs font-bold text-slate-500 uppercase mb-2">Autokonsumpcja Progowa</h3>
+
+            <p class="text-3xl font-black text-teal-400">71%</p>
+
+        </div>
+
+    </div>
+
+    <!-- ==================== ANATOMIA OSZCZĘDNOŚCI ==================== -->
+
+    <section class="mb-20">
+
+        <div class="bg-[#0a0a0a] p-4 sm:p-6 lg:p-10 rounded-3xl shadow-2xl shadow-black/50 border border-teal-500/20">
+
+            <div class="mb-6 sm:mb-8">
+
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Anatomia Oszczędności Dystrybucyjnych</h2>
+
+                <p class="text-sm sm:text-base text-slate-500 mt-2 leading-relaxed">
+
+                    Model biznesowy X1 ENERGY opiera się na prawnym i fizycznym zminimalizowaniu opłat regulowanych (na mocy ustawy o odnawialnych źródłach energii), które stanowią blisko 50% tradycyjnego rachunku za energię. System magazynowania energii gwarantuje, że wyprodukowana energia nie ucieka do sieci zewnętrznej, co pozwala uniknąć ponownych kosztów dystrybucji. Spółdzielnia Energetyczna to nie tylko darmowa produkcja, ale przede wszystkim systemowa eliminacja odgórnych narzutów dystrybucyjnych Operatora Systemu Dystrybucyjnego.
+
+                </p>
+
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+
+                <div class="chart-container h-[450px]">
+
+                    <canvas id="feesComparisonChart"></canvas>
+
+                </div>
+
+                <div class="space-y-4">
+
+                    <div class="p-6 bg-gray-900 rounded-2xl border border-teal-500/20">
+
+                        <h4 class="font-bold text-teal-400 mb-4 flex items-center">
+
+                            <span class="w-8 h-8 bg-emerald-900/40 text-emerald-400 rounded-full flex items-center justify-center mr-3 text-lg font-bold">!</span>
+
+                            Opłaty Całkowicie Wyeliminowane
+
+                        </h4>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+                            <div class="bg-[#0a0a0a] p-3 rounded-lg shadow-md shadow-black/40 border-t-2 border-emerald-500/50">
+
+                                <span class="saving-tag bg-emerald-900/40 text-emerald-400">-100%</span>
+
+                                <p class="text-xs font-bold mt-1 uppercase text-slate-500">Opłata OZE</p>
+
+                            </div>
+
+                            <div class="bg-[#0a0a0a] p-3 rounded-lg shadow-md shadow-black/40 border-t-2 border-emerald-500/50">
+
+                                <span class="saving-tag bg-emerald-900/40 text-emerald-400">-100%</span>
+
+                                <p class="text-xs font-bold mt-1 uppercase text-slate-500">Opłata Kogeneracyjna</p>
+
+                            </div>
+
+                            <div class="bg-[#0a0a0a] p-3 rounded-lg shadow-md shadow-black/40 border-t-2 border-emerald-500/50">
+
+                                <span class="saving-tag bg-emerald-900/40 text-emerald-400">-100%</span>
+
+                                <p class="text-xs font-bold mt-1 uppercase text-slate-500">Opłata Jakościowa</p>
+
+                            </div>
+
+                            <div class="bg-[#0a0a0a] p-3 rounded-lg shadow-md shadow-black/40 border-t-2 border-teal-500">
+
+                                <span class="saving-tag bg-teal-900/50 text-teal-400">-100% zbilansowane</span>
+
+                                <p class="text-xs font-bold mt-1 uppercase text-slate-500">Zmienna Sieciowa</p>
+
+                            </div>
+
+                        </div>
+
+                        <p class="text-[10px] text-teal-400 mt-4 italic">Zgodnie z zasadami bilansowania międzyfazowego, każda kilowatogodzina (kWh) zbilansowana fizycznie lub godzinowo w ramach Spółdzielni jest całkowicie zwolniona z powyższych narzutów dystrybucyjnych.</p>
+
+                    </div>
+
+                    <div class="p-6 bg-blue-900 text-white rounded-2xl shadow-lg">
+
+                        <h4 class="font-bold mb-2">Mechanizm Unikania Kosztów</h4>
+
+                        <p class="text-sm opacity-80 leading-relaxed">
+
+                            Magazyn Energii działa jak izolator kosztowy. Przechowując nadwyżki energii lokalnie i rozładowując je w szczytach wieczornych, unikamy przesyłania jej przez infrastrukturę operatora sieci dystrybucyjnej, co jest warunkiem prawnym do zachowania pełnych zwolnień z powyższych opłat regulowanych.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- ==================== SYSTEM ZARZĄDZANIA ENERGIĄ (EMS) ==================== -->
+
+    <section class="mb-20">
+
+        <div class="mb-6 sm:mb-10">
+
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-white">System Zarządzania Energią</h2>
+
+            <p class="text-sm sm:text-base text-slate-500 mt-2 leading-relaxed">
+
+                Mózgiem instalacji X1 ENERGY jest dedykowany algorytm EMS, który w czasie rzeczywistym podejmuje decyzje o kierunku przepływu energii. Poniżej przedstawiamy trzy filary logiki sterującej, które gwarantują optymalną autokonsumpcję i bezpieczeństwo sieci.
+
+            </p>
+
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
+
+            <!-- Panel 1 -->
+
+            <div class="ems-deep-dive">
+
+                <div class="flex items-center space-x-3 sm:space-x-4 mb-4 sm:mb-6">
+
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 bg-teal-700 text-white flex items-center justify-center rounded-xl font-bold text-sm sm:text-base">01</div>
+
+                    <h3 class="text-base sm:text-lg font-bold text-white">Priorytetyzacja Autokonsumpcji Bezpośredniej</h3>
+
+                </div>
+
+                <p class="text-xs sm:text-sm text-slate-500 leading-relaxed mb-4 sm:mb-6">
+
+                    Algorytm w pierwszej kolejności zaspokaja bieżące zapotrzebowanie budynków takie jak windy, hydrofornie czy oświetlenie części wspólnych. Jest to autokonsumpcja bezpośrednia, która posiada najwyższą sprawność energetyczną (brak strat na cyklu ładowania i rozładowania baterii). Dynamiczny podział fazowy zapewnia, że generacja z fotowoltaiki trafia bezpośrednio do urządzeń odbiorczych, całkowicie eliminując potrzebę poboru z zewnętrznej sieci.
+
+                </p>
+
+                <div class="p-3 sm:p-4 bg-teal-900/30 rounded-lg mt-auto">
+
+                    <p class="text-[10px] sm:text-[11px] font-bold text-teal-400 uppercase mb-2">Kryterium Decyzyjne:</p>
+
+                    <p class="text-[11px] sm:text-xs italic text-teal-400">Jeśli moc generacji przewyższa moc obciążenia, system automatycznie kieruje nadwyżkę generacji do ładowania akumulatorów LTO/LFP zamiast eksportu do sieci zewnętrznej.</p>
+
+                </div>
+
+            </div>
+
+            <!-- Panel 2 -->
+
+            <div class="ems-deep-dive">
+
+                <div class="flex items-center space-x-3 sm:space-x-4 mb-4 sm:mb-6">
+
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 bg-teal-700 text-white flex items-center justify-center rounded-xl font-bold text-sm sm:text-base">02</div>
+
+                    <h3 class="text-base sm:text-lg font-bold text-white">Zarządzanie Stanem Naładowania</h3>
+
+                </div>
+
+                <p class="text-xs sm:text-sm text-slate-500 leading-relaxed mb-4 sm:mb-6">
+
+                    System aktywnie monitoruje stan naładowania w celu optymalizacji żywotności ogniw LTO/LFP. Dzięki zastosowaniu w LTO aktywnego bilansowania prądem do 15 A, system wyrównuje napięcia na poszczególnych celach baterii. Chroni to ogniwa przed degradacją podczas gwałtownych rozładowań wysokim prądem rozruchowym wind (silniki indukcyjne generujące piki prądowe) oraz utrzymuje rezerwę dynamiczną UPS.
+
+                </p>
+
+                <div class="p-3 sm:p-4 bg-gray-900 rounded-lg mt-auto">
+
+                    <p class="text-[10px] sm:text-[11px] font-bold text-white uppercase mb-2">Algorytm Ochronny:</p>
+
+                    <p class="text-[11px] sm:text-xs italic text-slate-500">Szybkie ładowanie kończone przy SOC = 95% (ochrona przed przeładowaniem). Rozładowanie blokowane przy SOC = 10% w celu zachowania rezerwy awaryjnej zasilania.</p>
+
+                </div>
+
+            </div>
+
+            <!-- Panel 3 -->
+
+            <div class="ems-deep-dive">
+
+                <div class="flex items-center space-x-3 sm:space-x-4 mb-4 sm:mb-6">
+
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 bg-teal-700 text-white flex items-center justify-center rounded-xl font-bold text-sm sm:text-base">03</div>
+
+                    <h3 class="text-base sm:text-lg font-bold text-white">Stabilizacja Napięcia i Ograniczenie Mocy</h3>
+
+                </div>
+
+                <p class="text-xs sm:text-sm text-slate-500 leading-relaxed mb-4 sm:mb-6">
+
+                    W momentach pełnego naładowania baterii (SOC = 95%) i braku odbioru lokalnego, system steruje mocą inwerterów fotowoltaicznych lub realizuje kontrolowane oddawanie energii do sieci. Zapobiega to wzrostowi napięcia w lokalnej sieci powyżej krytycznej granicy 253V, co chroni wrażliwe urządzenia domowe mieszkańców przed uszkodzeniem i stabilizuje lokalny profil napięciowy.
+
+                </p>
+
+                <div class="p-3 sm:p-4 bg-orange-50 rounded-lg mt-auto">
+
+                    <p class="text-[10px] sm:text-[11px] font-bold text-orange-900 uppercase mb-2">Regulacja Mocy:</p>
+
+                    <p class="text-[11px] sm:text-xs italic text-orange-700">Aktywne sterowanie mocą bierną i Peak Shaving w celu wygładzenia profilu obciążenia transformatora osiedlowego.</p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- ==================== DOBOWY PROFIL MOCY ==================== -->
+
+    <section class="bg-[#0a0a0a] p-4 sm:p-6 lg:p-10 rounded-3xl shadow-2xl shadow-black/50 border border-teal-500/20 mb-20">
+
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4">
+
+            <div>
+
+                <h2 class="text-3xl font-extrabold text-white">Dobowy Profil Mocy i Redukcja Szczytów</h2>
+
+                <p class="text-slate-500 mt-2 max-w-2xl">
+
+                    Magazyn Energii Smol Power Iron LTO ścina najdroższe piki zapotrzebowania w częściach wspólnych i osobiście chroni budżet Spółdzielni przed wysokimi kosztami.
+
+                </p>
+
+            </div>
+
+            <div class="bg-teal-900/30 px-4 py-2 rounded-xl border border-teal-500/30 text-xs">
+
+                <span class="font-semibold text-teal-400 block">Efekt Peak Shavingu:</span>
+
+                <span class="text-slate-500">Redukcja poboru szczytowego z <strong class="text-red-600 font-bold">18 kW</strong> do <strong class="text-emerald-400 font-bold">3 kW</strong> (−83% na węzeł)</span>
+
+            </div>
+
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+
+            <div class="lg:col-span-8 bg-gray-900 p-3 sm:p-6 rounded-2xl border border-teal-500/20">
+
+                <div class="relative w-full h-[300px] sm:h-[380px]">
+
+                    <canvas id="readablePeakShavingChart"></canvas>
+
+                </div>
+
+            </div>
+
+            <div class="lg:col-span-4 space-y-6">
+
+                <h3 class="font-bold text-white text-lg">Przewodnik po cyklu dobowym:</h3>
+
+                <div class="flex items-start space-x-4">
+
+                    <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 flex-shrink-0 font-bold">☀</div>
+
+                    <div>
+
+                        <h4 class="font-semibold text-white text-sm">Godziny Południowe (10:00 - 15:00)</h4>
+
+                        <p class="text-xs text-slate-500 mt-1 leading-relaxed">
+
+                            Panele fotowoltaiczne generują dużą nadwyżkę prądu (kolor pomarańczowy). Lokalne zużycie budynków jest wtedy małe. Zamiast oddawać tę energię do sieci Operatora za półdarmo w systemie net-billingu, system automatycznie ładuje moduły LFP i zabezpieczające ogniwa Smol Power Iron LTO. 
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="flex items-start space-x-4">
+
+                    <div class="w-8 h-8 rounded-full bg-teal-900/50 flex items-center justify-center text-teal-400 flex-shrink-0 font-bold">⚡</div>
+
+                    <div>
+
+                        <h4 class="font-semibold text-white text-sm">Szczyt Wieczorny (17:00 - 21:00)</h4>
+
+                        <p class="text-xs text-slate-500 mt-1 leading-relaxed">
+
+                            Mieszkańcy wracają do mieszkań. Windy, oświetlenie, sprzęt RTV-AGD generują ogromny, drogi pik zapotrzebowania (czerwona linia). Magazyn LTO natychmiast reaguje w czasie 0 ms i rozładowuje się, ścinając szczyt (niebieska linia) do poziomu 3 kW.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="flex items-start space-x-4">
+
+                    <div class="w-8 h-8 rounded-full bg-emerald-900/40 flex items-center justify-center text-emerald-400 flex-shrink-0 font-bold">🛡</div>
+
+                    <div>
+
+                        <h4 class="font-semibold text-white text-sm">Ochrona Stabilności (Cała doba)</h4>
+
+                        <p class="text-xs text-slate-500 mt-1 leading-relaxed">
+
+                            Dzięki technologii LTO, która oferuje niezrównaną ilość cykli pracy, proces ten zachodzi codziennie przez ok 25 lat z minimalną utratą pojemności. Czas przejścia wynoszący 0 ms gdzie obciążenie jest stale zasilane inwerterem z transformatorem toroidalnym pracującym w trybie ciągłym, eliminuje całkowicie zjawisko hybrydowego przełączania zasilania, w przeciwieństwie do powszechnie stosowanych i bardzo drogich systemów STS (&lt;10-20 ms) lub ATS (&lt;500 ms).
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- ==================== MATRYCA TECHNOLOGICZNA ==================== -->
+
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-20">
+
+        <div>
+
+            <h2 class="text-3xl font-extrabold mb-6 text-white">Matryca Technologiczna Baterii</h2>
+
+            <p class="text-slate-500 mb-8">
+
+                Porównanie wiodących technologii magazynowania dostępnych na rynku. Technologia LTO (Tytanian Litu) zastosowana w Smol Power Iron charakteryzuje się bezkonkurencyjną żywotnością 30 000 cykli oraz ekstremalnynym czasem reakcji i stosunkiem mocy do pojemności.
+
+            </p>
+
+            <div class="chart-container">
+
+                <canvas id="chemistryRadar"></canvas>
+
+            </div>
+
+        </div>
+
+        <div class="space-y-6 self-center">
+
+            <div class="p-8 bg-blue-900 text-white rounded-3xl shadow-lg border-b-8 border-blue-700">
+
+                <h4 class="font-bold text-xl mb-4">Wyjątkowość Technologii Smol Power Iron LTO</h4>
+
+                <p class="text-sm opacity-80 leading-relaxed mb-6">
+
+                </p>
+
+                <div class="grid grid-cols-2 gap-4">
+
+                    <div class="bg-blue-800 p-3 rounded-xl h-16 flex flex-col items-center justify-center text-center">
+
+                        <span class="block text-xl font-bold leading-tight">25+ Lat</span>
+
+                        <span class="text-[10px] uppercase opacity-60 leading-none">Projektowana Żywotność</span>
+
+                    </div>
+
+                    <div class="bg-blue-800 p-3 rounded-xl h-16 flex flex-col items-center justify-center text-center">
+
+                        <span class="block text-xl font-bold leading-tight">30 000</span>
+
+                        <span class="text-[10px] uppercase opacity-60 leading-none">Liczba Cykli</span>
+
+                    </div>
+
+                    <div class="bg-blue-800 p-3 rounded-xl h-16 flex items-center justify-center">
+
+                    </div>
+
+                    <div class="bg-blue-800 p-3 rounded-xl h-16 flex items-center justify-center">
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- ==================== SKALOWANIE BESS ==================== -->
+
+    <section class="bg-[#0a0a0a] p-4 sm:p-6 lg:p-10 rounded-3xl shadow-2xl shadow-black/50 border border-teal-500/20 mb-20">
+
+        <div class="mb-6 sm:mb-8">
+
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Skalowanie Systemów BESS na Kolejne 20 Budynków</h2>
+
+            <p class="text-sm sm:text-base text-slate-500 mt-2 leading-relaxed">
+
+                Wizualizacja skumulowanego przyrostu mocy (kW) oraz pojemności (kWh) w podziale na technologię Smol Power Iron LTO dedykowaną jako system zasilania gwarantowanego dla obciążeń krytycznych oraz wspierającą technologię LFP dedykowaną dla pozostałego obciążenia wspólnego. Plan wdrożenia podzielony jest na cztery rygorystyczne etapy wdrożeniowe, zapewniające kontrolowane uruchamianie kolejnych segmentów systemu.
+
+            </p>
+
+        </div>
+
+        <div class="chart-container h-[350px] sm:h-[450px]">
+
+            <canvas id="cumulativeScalingChart"></canvas>
+
+        </div>
+
+    </section>
+
+    <!-- ==================== PODSUMOWANIE ==================== -->
+
+    <section class="bg-[#0a0a0a] p-10 rounded-3xl shadow-2xl shadow-black/50 border border-teal-500/20 mb-20">
+
+        <div class="text-center mb-10 flex flex-col items-center justify-center w-full">
+
+            <h2 class="text-3xl font-extrabold text-white mb-3 text-center w-full">PODSUMOWANIE</h2>
+
+            <p class="text-slate-500 mx-auto">Architektura techniczna systemu X1 ENERGY opiera się na trójkomponentowym bilansie mocy i pojemności w ramach Wirtualnej Elektrowni (VPP) na potrzeby rynku bilansującego i usług DSR (Demand Side Response).</p>
+
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
+
+            <div class="p-6 bg-[#0a0a0a] border border-teal-500/30 rounded-2xl">
+
+                <div class="flex items-center gap-3 mb-4">
+
+                    <div class="w-10 h-10 bg-teal-900/50 text-teal-400 rounded-xl flex items-center justify-center text-xl">☀️</div>
+
+                    <div>
+
+                        <div class="font-bold text-lg text-white">Generacja PV</div>
+
+                        <div class="text-xs text-slate-500">Główne źródło energii rozproszonej</div>
+
+                    </div>
+
+                </div>
+
+                <div class="text-4xl font-black text-teal-400 mb-1">1,37 MWp</div>
+
+                <div class="text-sm text-slate-500">Łączna moc instalacji fotowoltaicznej dedykowanej systemowo i gwarantującej roczną generację na poziomie ok. 1,30 GWh</div>
+
+            </div>
+
+            <div class="p-6 bg-[#0a0a0a] border border-emerald-200 rounded-2xl">
+
+                <div class="flex items-center gap-3 mb-4">
+
+                    <div class="w-10 h-10 bg-emerald-900/50 text-emerald-700 rounded-xl flex items-center justify-center text-xl">⚡</div>
+
+                    <div>
+
+                        <div class="font-bold text-lg text-white">Magazyn LTO (Buforujący)</div>
+
+                        <div class="text-xs text-slate-500">Wysokoprądowe ogniwa dla wind i UPS</div>
+
+                    </div>
+
+                </div>
+
+                <div class="flex items-baseline gap-2 mb-1">
+
+                    <div class="text-4xl font-black text-emerald-700">120 kWh</div>
+
+                </div>
+
+                <div class="text-sm text-slate-500">Pojemność użytkowa zoptymalizowana do pracy buforowej dzięki ekstremalnej żywotności cyklicznej</div>
+
+            </div>
+
+            <div class="p-6 bg-[#0a0a0a] border border-slate-300 rounded-2xl">
+
+                <div class="flex items-center gap-3 mb-4">
+
+                    <div class="w-10 h-10 bg-gray-800 text-slate-300 rounded-xl flex items-center justify-center text-xl">🔋</div>
+
+                    <div>
+
+                        <div class="font-bold text-lg text-white">Magazyn LFP (Wspierający)</div>
+
+                        <div class="text-xs text-slate-500">Bilansowanie stałego obciążenia</div>
+
+                    </div>
+
+                </div>
+
+                <div class="text-4xl font-black text-slate-300 mb-1">5,22 MWh</div>
+
+                <div class="text-sm text-slate-500">Pojemność użytkowa zoptymalizowana pod kątem długoterminowego magazynowania pojemnościowego</div>
+
+            </div>
+
+        </div>
+
+        <div class="bg-slate-900 text-white rounded-2xl p-8">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+
+                <div>
+
+                    <div class="uppercase text-xs tracking-[1.5px] text-white mb-3 font-bold">Usługi i Efekty</div>
+
+                    <div class="space-y-4 text-sm">
+
+                        <div class="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-4 border-b border-slate-700 pb-3">
+
+                            <span class="text-slate-500">Peak Shaving</span>
+
+                            <span class="font-bold text-emerald-400">360 kW → 60 kW (−83%)</span>
+
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-4 border-b border-slate-700 pb-3">
+
+                            <span class="text-slate-500">Usługi Elastyczności</span>
+
+                            <span class="font-bold text-emerald-400">Redukcja zapotrzebowania</span>
+
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-4 border-b border-slate-700 pb-3">
+
+                            <span class="text-slate-500">Usługi Pomocnicze</span>
+
+                            <span class="font-bold text-emerald-400">Zarządzanie mocą bierną</span>
+
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-4">
+
+                            <span class="text-slate-500">Integracja z VPP</span>
+
+                            <span class="font-bold text-emerald-400">Szybka reakcja na popyt</span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div>
+
+                    <div class="uppercase text-xs tracking-[1.5px] text-white mb-3 font-bold">Model Finansowy</div>
+
+                    <div class="text-sm text-slate-300 leading-relaxed mb-4">
+
+                        Nadwyżki energii po zabezpieczeniu SOC na poziomie 95% są agregowane i oferowane na rynku bilansującym jako usługi systemowe.
+
+                    </div>
+
+                    <div class="bg-slate-800 rounded-xl p-4 text-sm">
+
+                        <div class="font-bold text-emerald-400 mb-1">100% przychodu trafia na:</div>
+
+                        <div class="text-white font-semibold">Fundusz Rozwoju X1 ENERGY</div>
+
+                        <div class="text-xs text-white mt-1">Z którego finansowane jest obniżenie opłat stałych za utrzymanie infrastruktury wspólnej takiej jak oświetlenie czy fundusz remontowy dla wszystkich członków oraz kaskadowe finansowanie kolejnych etapów transformacji, przy jednoczesnym zapewnieniu trwałej redukcji kosztów życia mieszkańców.</div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="mt-8 text-center bg-gradient-to-r from-blue-700 to-blue-900 text-white rounded-2xl py-6 px-8">
+
+            <div class="text-lg font-bold mb-1">Efekt końcowy dla mieszkańców</div>
+
+            <div class="text-lg sm:text-xl lg:text-2xl font-black tracking-tight leading-tight">
+
+                Pełna niezależność od wzrostu cen energii › Koszt energii na poziomie kilku groszy za kWh
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- ==================== FOOTER ==================== -->
+
+    <footer class="mt-20 pt-10 border-t border-teal-500/30 text-center">
+
+        <div class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">
+
+            Dokumentacja zgodna z normą IEEE 1547-2018 | Dział Inżynierii UBESS | <a href="https://polska-synergia.pl/" target="_blank" class="underline hover:text-teal-400 transition-colors">Copyright by Polska Synergia Sp. z o.o.</a> | Zdjęcie zostało zmodyfikowane: Artemco, Osiedle Ruda, Wikimedia Commons, CC BY-SA 4.0.
+
+        </div>
+
+    </footer>
+
+</div>
+
+<script>
+
+    const commonTooltip = {
+
+        callbacks: {
+
+            title: function(tooltipItems) {
+
+                const item = tooltipItems[0];
+
+                let label = item.chart.data.labels[item.dataIndex];
+
+                return Array.isArray(label) ? label.join(' ') : label;
+
+            }
+
+        }
+
+    };
+
+    // ========== WYKRES 1: Porównanie opłat ==========
+
+    new Chart(document.getElementById('feesComparisonChart'), {
+
+        type: 'bar',
+
+        data: {
+
+            labels: [['Klasyczny Odbiorca', 'Sieci OSD'], ['Członek Klastra', 'X1 ENERGY']],
+
+            datasets: [
+
+                { label: 'Cena Energii (Towar)', data: [620, 150], backgroundColor: '#1e3a8a' },
+
+                { label: 'Opłata Zmienna Sieciowa', data: [280, 0], backgroundColor: '#3b82f6' },
+
+                { label: 'Opłaty Regulowane (OZE/KOG/JAK)', data: [140, 0], backgroundColor: '#94a3b8' },
+
+                { label: 'Opłaty Stałe i Przesyłowe', data: [90, 80], backgroundColor: '#cbd5e1' }
+
+            ]
+
+        },
+
+        options: {
+
+            maintainAspectRatio: false,
+
+            plugins: { tooltip: commonTooltip, legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } } },
+
+            scales: { x: { stacked: true }, y: { stacked: true, title: { display: true, text: 'Koszt 1 MWh (PLN)' }, grid: { color: '#1f2937' } } }
+
+        }
+
+    });
+
+    // ========== WYKRES 2: Dobowy profil mocy ==========
+
+    const dailyHours = Array.from({length: 24}, (_, h) => `${h.toString().padStart(2, '0')}:00`);
+
+    const zapotrzebowanieBezBess = [4.0, 4.0, 3.0, 4.0, 6.0, 10.0, 12.0, 12.0, 11.0, 10.0, 11.0, 12.0, 11.0, 10.0, 10.0, 11.0, 13.0, 16.0, 18.0, 17.0, 15.0, 11.0, 8.0, 5.0];
+
+    const zapotrzebowanieZBess = [4.0, 4.0, 3.0, 4.0, 6.0, 8.0, 4.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 3.0, 2.0, 0.0, 0.0, 0.0, 0.0];
+
+    const generacjaPV = [0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 8.0, 18.0, 32.0, 45.0, 50.0, 52.0, 50.0, 45.0, 32.0, 18.0, 8.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+
+    new Chart(document.getElementById('readablePeakShavingChart'), {
+
+        type: 'line',
+
+        data: {
+
+            labels: dailyHours,
+
+            datasets: [
+
+                { label: 'Zapotrzebowanie bazowe bez magazynu', data: zapotrzebowanieBezBess, borderColor: '#ef4444', borderDash: [5, 5], borderWidth: 2, fill: false, tension: 0.4, pointRadius: 0 },
+
+                { label: 'Realny pobór sieciowy z magazynem', data: zapotrzebowanieZBess, borderColor: '#1e3a8a', borderWidth: 3, fill: false, tension: 0.4, pointRadius: 0 },
+
+                { label: 'Dobowa generacja PV z mocy słońca', data: generacjaPV, backgroundColor: 'rgba(245, 158, 11, 0.15)', borderColor: '#f59e0b', borderWidth: 2, fill: true, tension: 0.4, pointRadius: 0 }
+
+            ]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            plugins: {
+
+                tooltip: { mode: 'index', intersect: false },
+
+                legend: {
+
+                    position: 'bottom',
+
+                    labels: { boxWidth: 10, font: { size: window.innerWidth < 640 ? 8 : 10 }, padding: window.innerWidth < 640 ? 8 : 15 }
+
+                }
+
+            },
+
+            scales: {
+
+                x: { grid: { display: false }, ticks: { font: { size: window.innerWidth < 640 ? 7 : 11 }, maxRotation: 90, autoSkip: true, maxTicksLimit: window.innerWidth < 640 ? 8 : 24 } },
+
+                y: { title: { display: true, text: 'Moc (kW)', font: { size: window.innerWidth < 640 ? 9 : 12 } }, grid: { color: '#1f2937' }, min: 0, max: 60 }
+
+            }
+
+        }
+
+    });
+
+    // ========== WYKRES 3: Radar technologii ==========
+
+    new Chart(document.getElementById('chemistryRadar'), {
+
+        type: 'radar',
+
+        data: {
+
+            labels: [['Stosunek mocy', 'do pojemności (kW/kWh)'], ['Bezpieczeństwo', 'Termiczne'], ['C-Rate / Moc', 'Oddawana'], ['Całkowity Koszt', 'Posiadania (TCO)'], ['Żywotność', 'Cykliczna (Cykle)']],
+
+            datasets: [
+
+                { label: 'Smol Power Iron LTO (30 000 cykli / 1,00 kW/kWh / Sprawność >95%)', data: [100, 100, 100, 95, 100], borderColor: '#1e3a8a', backgroundColor: 'rgba(30, 58, 138, 0.2)' },
+
+                { label: 'BYD LiFePO4 (6000 cykli / 0,98 kW/kWh / Sprawność >97%)', data: [98, 85, 70, 80, 33], borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.2)' },
+
+                { label: 'Tesla NMC (3000 cykli / 0,37 kW/kWh / Sprawność 90%)', data: [37, 60, 50, 50, 10], borderColor: '#94a3b8', backgroundColor: 'rgba(148, 163, 184, 0.2)' }
+
+            ]
+
+        },
+
+        options: { maintainAspectRatio: false, plugins: { tooltip: commonTooltip, legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } } }, scales: { r: { min: 0, max: 100, ticks: { display: false } } } }
+
+    });
+
+    // ========== WYKRES 4: Skalowanie BESS ==========
+
+    new Chart(document.getElementById('cumulativeScalingChart'), {
+
+        type: 'bar',
+
+        data: {
+
+            labels: ['Etap 1 (Budynki 1-5)', 'Etap 2 (Budynki 6-10)', 'Etap 3 (Budynki 11-15)', 'Etap 4 (Budynki 16-20)'],
+
+            datasets: [
+
+                { label: 'Moc Szczytowa LTO Smol Power (kW)', data: [50, 100, 150, 200], backgroundColor: '#1e3a8a', stack: 'PowerStack' },
+
+                { label: 'Pojemność LTO Smol Power (kWh)', data: [30, 60, 90, 120], backgroundColor: '#3b82f6', stack: 'CapacityStack' },
+
+                { label: 'Wspierająca Pojemność LFP (kWh)', data: [1305, 2610, 3915, 5220], backgroundColor: '#94a3b8', stack: 'CapacityStack' }
+
+            ]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            plugins: {
+
+                tooltip: commonTooltip,
+
+                legend: {
+
+                    position: 'bottom',
+
+                    labels: { boxWidth: 10, font: { size: window.innerWidth < 640 ? 8 : 10 }, padding: window.innerWidth < 640 ? 8 : 15 }
+
+                }
+
+            },
+
+            scales: {
+
+                x: { stacked: true, ticks: { font: { size: window.innerWidth < 640 ? 8 : 11 }, maxRotation: 45 } },
+
+                y: { stacked: true, title: { display: true, text: 'Wydajność Systemowa (kW / kWh)', font: { size: window.innerWidth < 640 ? 9 : 12 } }, grid: { color: '#1f2937' } }
+
+            }
+
+        }
+
+    });
+
+</script>
+
+</body>
+
+</html>
+
